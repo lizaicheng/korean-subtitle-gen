@@ -29,7 +29,23 @@
 
 ---
 
-## 一、安装 Python
+## 一、安装 Git
+
+### Windows
+
+1. 打开 https://git-scm.com/download/win
+2. 下载安装包，一路点 Next（所有选项保持默认）
+3. 安装完成后重启终端
+
+### Mac
+
+```bash
+brew install git
+```
+
+---
+
+## 二、安装 Python
 
 ### Windows
 
@@ -54,7 +70,7 @@ brew install python
 
 ---
 
-## 二、安装 FFmpeg
+## 三、安装 FFmpeg
 
 FFmpeg 用于把字幕烧录进预览视频。
 
@@ -74,7 +90,7 @@ brew install ffmpeg
 
 ---
 
-## 三、下载项目 & 安装依赖
+## 四、下载项目 & 安装依赖
 
 ```bash
 # 克隆项目
@@ -87,7 +103,7 @@ pip install faster-whisper deep-translator gradio yt-dlp
 
 ---
 
-## 四、启动
+## 五、启动
 
 ```bash
 python app.py
@@ -103,7 +119,7 @@ http://localhost:7860
 
 ---
 
-## 五、使用方式
+## 六、使用方式
 
 界面分三个功能 Tab：
 
@@ -120,7 +136,7 @@ http://localhost:7860
 
 ---
 
-## 六、局域网共享（让同事也能用）
+## 七、局域网共享（让同事也能用）
 
 启动后查看自己的 IP：
 
@@ -140,7 +156,7 @@ http://你的IP:7860
 
 ---
 
-## 七、可选：GPU 加速
+## 八、可选：GPU 加速
 
 如果你有 **Nvidia 显卡**，安装 CUDA 版依赖后速度可提升 5–10 倍：
 
@@ -148,13 +164,15 @@ http://你的IP:7860
 pip install torch --index-url https://download.pytorch.org/whl/cu118
 ```
 
-然后修改 `app.py` 第 17 行：
+然后用文本编辑器打开 `app.py`，找到这一行：
 
 ```python
-# 改前
 model = WhisperModel("large-v3", device="cpu", compute_type="int8")
+```
 
-# 改后
+改为：
+
+```python
 model = WhisperModel("large-v3", device="cuda", compute_type="float16")
 ```
 

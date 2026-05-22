@@ -187,4 +187,4 @@ with gr.Blocks(title="韩文视频 → 双语字幕") as demo:
 if __name__ == "__main__":
     print("启动中...")
     demo.launch(server_name="0.0.0.0", server_port=7860, share=False,
-                theme=gr.themes.Soft())
+                theme=gr.themes.Soft(), inbrowser=True)
