@@ -151,7 +151,9 @@ http://localhost:7860/?__theme=dark
 
 ## 七、可选：GPU 加速
 
-如果你有 **Nvidia 显卡**，安装 CUDA 版依赖后速度可提升 5–10 倍：
+### Windows（Nvidia 显卡）
+
+安装 CUDA 版 PyTorch 后速度可提升 5–10 倍：
 
 ```bash
 pip install torch --index-url https://download.pytorch.org/whl/cu118
@@ -165,6 +167,40 @@ model = WhisperModel(DEFAULT_WHISPER_MODEL, device="cpu", compute_type="int8")
 # 改为
 model = WhisperModel(DEFAULT_WHISPER_MODEL, device="cuda", compute_type="float16")
 ```
+
+### Mac（Apple Silicon M1/M2/M3/M4）
+
+faster-whisper 不支持 Apple MPS，推荐改用 `mlx-whisper`（Apple 官方优化，直接调用 M 系芯片 GPU，速度比 CPU 快 3–5 倍）：
+
+```bash
+pip install mlx-whisper
+```
+
+然后修改 `services/transcription.py`，将 `transcribe_local` 替换为：
+
+```python
+import mlx_whisper
+
+def transcribe_local(media_path, language=None, initial_prompt=None):
+    kwargs = {"path_or_hf_repo": "mlx-community/whisper-large-v3-mlx"}
+    if language:
+        kwargs["language"] = language
+    if initial_prompt:
+        kwargs["initial_prompt"] = initial_prompt
+    result = mlx_whisper.transcribe(media_path, word_timestamps=True, **kwargs)
+    out = []
+    for seg in result.get("segments", []):
+        words = [
+            {"text": w["word"].strip(), "start": w["start"], "end": w["end"]}
+            for w in seg.get("words", []) if w.get("word", "").strip()
+        ]
+        out.append({"start": seg["start"], "end": seg["end"], "text": seg["text"].strip(), "words": words})
+    return out
+```
+
+### Intel Mac
+
+无可用 GPU 加速路径，建议在界面中选择 **OpenAI API** 模式，云端处理速度更快。
 
 ---
 
