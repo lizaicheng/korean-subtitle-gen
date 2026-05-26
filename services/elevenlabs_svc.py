@@ -10,6 +10,16 @@ LANG_LABEL_TO_CODE = {
     "日文": "jpn",
 }
 
+VOICE_CHOICES = [
+    ("Han - Conversational", "8jHHF8rMqMlg8if2mOUe"),
+    ("韩国1", "Y5PTb4q9EX2NAl00Eg3W"),
+    ("Mr. K - Korean Creator Voices", "Q3a15DhENXU8pKTHIccM"),
+    ("Mr. K - Natural Korean Voice", "LKOcTG4J4tYTPR9DnLeM"),
+    ("Hana Lee - Natural and Cheerful", "QPFsEL6IBxlT15xfiD6C"),
+    ("Eun-joong - Deep & Calm Korean Narrator", "36g0LZWoT8jWnUnnCauK"),
+    ("Jeong-Ah - Versatile Korean Female", "airYK6ydeWdrJg6gyZA3"),
+]
+
 
 def transcribe_elevenlabs(audio_path, api_key, language_label="自动检测", tag_audio_events=True, diarize=False):
     if not api_key or not api_key.strip():

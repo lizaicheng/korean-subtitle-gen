@@ -1,7 +1,7 @@
 import gradio as gr
 
 from config import LOCAL_BACKEND, OPENAI_BACKEND
-from services.elevenlabs_svc import LANG_LABEL_TO_CODE, transcribe_elevenlabs, tts_elevenlabs
+from services.elevenlabs_svc import LANG_LABEL_TO_CODE, VOICE_CHOICES, transcribe_elevenlabs, tts_elevenlabs
 from services.workflows import process_auto, switch_backend, switch_source
 from subtitle.align import process_merge_paste_and_upload
 from subtitle.segment import process_segment
@@ -226,11 +226,11 @@ with gr.Blocks(title="口播音频生成 Studio", css=CSS) as demo:
                                 placeholder="输入要朗读的文本...",
                             )
                         with gr.Column(scale=1, elem_classes=["studio-card", "action-card"]):
-                            gr.HTML('<div class="field-title">Voice ID</div>')
-                            el_tts_voice = gr.Textbox(
+                            gr.HTML('<div class="field-title">声音选择</div>')
+                            el_tts_voice = gr.Dropdown(
+                                choices=VOICE_CHOICES,
+                                value="8jHHF8rMqMlg8if2mOUe",
                                 show_label=False,
-                                placeholder="JBFqnCBsd6RMkjVDRZzb（George）",
-                                lines=1,
                             )
                             gr.HTML('<div class="field-title">模型</div>')
                             el_tts_model = gr.Dropdown(
