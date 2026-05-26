@@ -256,6 +256,18 @@ pip install -r requirements.txt 2>/dev/null || true
 
 ## 常见问题
 
+**Q：模型下载失败 / 连接超时（国内网络）**
+Whisper 模型托管在 HuggingFace，国内访问可能超时。`启动.bat` 已自动配置镜像源 `hf-mirror.com`，直接双击启动即可。如果用命令行启动，手动设置一下再运行：
+
+```bash
+# Windows
+set HF_ENDPOINT=https://hf-mirror.com
+python app.py
+
+# Mac / Linux
+HF_ENDPOINT=https://hf-mirror.com python app.py
+```
+
 **Q：点按钮没反应 / 一直转圈**
 首次运行正在后台下载模型（3GB），等待即可，下载完会自动开始处理。
 
