@@ -11,6 +11,7 @@
 | 🎬 生成字幕 | 视频链接 / 本地视频 / 音频 → 双语 SRT + 词级时间戳 JSON |
 | ✂️ 智能断句 | 用 AI 将长句重新断成短视频字幕节奏，配中文翻译 |
 | ⚡ 合并 SRT | 将 AI 重断的双语文本与词级时间戳精确对齐，生成新 SRT |
+| 🎙 口播音频生成 | ElevenLabs 语音转文本（scribe_v2）+ 文本转语音（eleven_v3）|
 
 ---
 
@@ -91,12 +92,22 @@ brew install ffmpeg
 ```bash
 git clone https://github.com/lizaicheng/korean-subtitle-gen.git
 cd korean-subtitle-gen
-pip install faster-whisper deep-translator gradio yt-dlp openai
+pip install faster-whisper deep-translator gradio yt-dlp openai elevenlabs
 ```
 
 ---
 
 ## 五、启动
+
+### 方式一：双击启动（推荐，无需打开终端）
+
+直接双击项目目录下的 **`启动.bat`**：
+
+- 自动在后台启动服务（任务栏出现最小化窗口）
+- 4 秒后自动打开浏览器 `http://localhost:7860`
+- 关闭最小化窗口即可停止服务
+
+### 方式二：命令行启动
 
 ```bash
 python app.py
@@ -146,6 +157,23 @@ http://localhost:7860/?__theme=dark
 1. 左侧粘贴「智能断句」的双语结果（原文一行 + 中文一行交替）
 2. 右侧上传「生成字幕」时导出的 `.words.json`
 3. 点击「开始合并」，得到精确时间轴的双语 SRT
+
+### 口播音频生成
+
+需要 [ElevenLabs API Key](https://elevenlabs.io)，填入顶部输入框后两个子功能均可使用。
+
+**语音转文本**
+
+1. 上传音频或视频文件（mp3 / wav / m4a / mp4 等）
+2. 选择语言（或自动检测）
+3. 点击「开始转录」，得到文字结果并可下载 TXT
+
+**文本转语音**
+
+1. 输入口播文案
+2. 填写 Voice ID（在 [ElevenLabs Voice Library](https://elevenlabs.io/app/voice-library) 找到后复制）
+3. 选择模型（`eleven_v3` 质量最高，`eleven_turbo_v2_5` 速度更快）
+4. 点击「生成语音」，可试听并下载 MP3
 
 ---
 

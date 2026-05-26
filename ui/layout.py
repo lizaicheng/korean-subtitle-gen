@@ -1,6 +1,7 @@
 import gradio as gr
 
 from config import LOCAL_BACKEND, OPENAI_BACKEND
+from services.elevenlabs_svc import LANG_LABEL_TO_CODE, transcribe_elevenlabs, tts_elevenlabs
 from services.workflows import process_auto, switch_backend, switch_source
 from subtitle.align import process_merge_paste_and_upload
 from subtitle.segment import process_segment
@@ -163,12 +164,90 @@ with gr.Blocks(title="口播音频生成 Studio", css=CSS) as demo:
             <div class="page-title">
                 <div class="step-icon bars">🎙</div>
                 <div class="page-title-text">
-                    <span>Voiceover Studio</span>
+                    <span>ElevenLabs Studio</span>
                     <h2>口播音频生成</h2>
-                    <p>暂未开发，敬请期待。</p>
+                    <p>语音转文本 · 文本转语音，由 ElevenLabs 驱动</p>
                 </div>
             </div>
             """)
+            with gr.Row(elem_classes=["studio-grid"]):
+                with gr.Column(scale=2, elem_classes=["studio-card"]):
+                    gr.HTML('<div class="field-title">ElevenLabs API Key</div>')
+                    el_api_key = gr.Textbox(
+                        show_label=False,
+                        placeholder="填写 sk_...",
+                        type="password",
+                        lines=1,
+                    )
+
+            with gr.Tabs():
+                # ── 语音转文本 ──
+                with gr.Tab("语音转文本"):
+                    with gr.Row(equal_height=False, elem_classes=["studio-grid"]):
+                        with gr.Column(scale=2, elem_classes=["studio-card", "input-card"]):
+                            gr.HTML('<div class="field-title">上传音频 / 视频</div>')
+                            el_stt_file = gr.File(
+                                show_label=False,
+                                file_types=[".mp3", ".wav", ".m4a", ".aac", ".ogg", ".flac", ".mp4", ".mkv", ".mov"],
+                            )
+                        with gr.Column(scale=1, elem_classes=["studio-card", "action-card"]):
+                            gr.HTML('<div class="field-title">语言</div>')
+                            el_stt_lang = gr.Dropdown(
+                                choices=list(LANG_LABEL_TO_CODE.keys()),
+                                value="自动检测",
+                                show_label=False,
+                            )
+                            el_stt_tag = gr.Checkbox(label="标注音频事件（笑声等）", value=True)
+                            el_stt_diarize = gr.Checkbox(label="区分说话人", value=False)
+                    with gr.Row(elem_classes=["action-bar-row"]):
+                        with gr.Column(elem_classes=["action-bar"]):
+                            el_stt_btn = gr.Button("开始转录", variant="primary", elem_id="run-btn")
+                    gr.HTML('<div class="section-divider"><span>转录结果</span></div>')
+                    with gr.Row(elem_classes=["result-grid"]):
+                        with gr.Column(scale=2, elem_classes=["studio-card"]):
+                            el_stt_text = gr.Textbox(
+                                show_label=False,
+                                lines=12,
+                                elem_id="subtitle-text",
+                                placeholder="转录完成后在这里显示...",
+                            )
+                        with gr.Column(scale=1, elem_classes=["studio-card"]):
+                            el_stt_file_out = gr.File(label="下载 TXT")
+                            el_stt_status = gr.Textbox(show_label=False, lines=1, interactive=False)
+
+                # ── 文本转语音 ──
+                with gr.Tab("文本转语音"):
+                    with gr.Row(equal_height=False, elem_classes=["studio-grid"]):
+                        with gr.Column(scale=2, elem_classes=["studio-card", "input-card"]):
+                            gr.HTML('<div class="field-title">口播文案</div>')
+                            el_tts_text = gr.Textbox(
+                                show_label=False,
+                                lines=8,
+                                placeholder="输入要朗读的文本...",
+                            )
+                        with gr.Column(scale=1, elem_classes=["studio-card", "action-card"]):
+                            gr.HTML('<div class="field-title">Voice ID</div>')
+                            el_tts_voice = gr.Textbox(
+                                show_label=False,
+                                placeholder="JBFqnCBsd6RMkjVDRZzb（George）",
+                                lines=1,
+                            )
+                            gr.HTML('<div class="field-title">模型</div>')
+                            el_tts_model = gr.Dropdown(
+                                choices=["eleven_v3", "eleven_turbo_v2_5", "eleven_multilingual_v2"],
+                                value="eleven_v3",
+                                show_label=False,
+                            )
+                    with gr.Row(elem_classes=["action-bar-row"]):
+                        with gr.Column(elem_classes=["action-bar"]):
+                            el_tts_btn = gr.Button("生成语音", variant="primary", elem_id="run-btn")
+                    gr.HTML('<div class="section-divider"><span>生成结果</span></div>')
+                    with gr.Row(elem_classes=["result-grid"]):
+                        with gr.Column(scale=2, elem_classes=["studio-card"]):
+                            el_tts_audio = gr.Audio(label="试听", interactive=False)
+                        with gr.Column(scale=1, elem_classes=["studio-card"]):
+                            el_tts_file_out = gr.File(label="下载 MP3")
+                            el_tts_status = gr.Textbox(show_label=False, lines=1, interactive=False)
 
         # ── 合并 SRT Tab ──────────────────────────────
         with gr.Tab("合并 SRT"):
@@ -224,3 +303,13 @@ with gr.Blocks(title="口播音频生成 Studio", css=CSS) as demo:
                     outputs=[merge_srt_output, merge_log_output])
     seg_btn.click(fn=process_segment, inputs=[seg_input, seg_max_len, seg_api_key],
                   outputs=[seg_output, seg_info])
+    el_stt_btn.click(
+        fn=transcribe_elevenlabs,
+        inputs=[el_stt_file, el_api_key, el_stt_lang, el_stt_tag, el_stt_diarize],
+        outputs=[el_stt_text, el_stt_file_out, el_stt_status],
+    )
+    el_tts_btn.click(
+        fn=tts_elevenlabs,
+        inputs=[el_tts_text, el_api_key, el_tts_voice, el_tts_model],
+        outputs=[el_tts_audio, el_tts_file_out, el_tts_status],
+    )
